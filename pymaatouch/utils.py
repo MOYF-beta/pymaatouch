@@ -5,8 +5,8 @@ import tempfile
 
 import requests
 
-from pymaatouch import config
-from pymaatouch.logger import logger
+from . import config
+from .logger import logger
 
 
 def str2byte(content):

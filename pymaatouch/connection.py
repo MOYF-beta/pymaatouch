@@ -3,9 +3,9 @@ import select
 import subprocess
 from contextlib import contextmanager
 
-from pymaatouch.logger import logger
-from pymaatouch import config
-from pymaatouch.utils import is_device_connected
+from .logger import logger
+from . import config
+from .utils import is_device_connected
 
 _ADB = config.ADB_EXECUTOR
 

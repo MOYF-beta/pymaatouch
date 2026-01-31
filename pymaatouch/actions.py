@@ -1,10 +1,10 @@
 import time
 from contextlib import contextmanager
 
-from pymaatouch.logger import logger
-from pymaatouch.connection import MNTConnection, MNTServer, safe_connection
-from pymaatouch import config
-from pymaatouch.utils import restart_adb
+from .logger import logger
+from .connection import MNTConnection, MNTServer, safe_connection
+from . import config
+from .utils import restart_adb
 
 
 class CommandBuilder(object):
@@ -125,6 +125,10 @@ class MNTDevice(object):
     ):
         if not part:
             part = 10
+        part = max(1, int(part))
+
+        # 每个 part 平均分配时长
+        per_part_duration = int(duration / part) if duration else None
 
         points = [list(map(int, each_point)) for each_point in points]
 
@@ -143,7 +147,7 @@ class MNTDevice(object):
             self.swipe(
                 new_points,
                 pressure=pressure,
-                duration=duration,
+                duration=per_part_duration,
                 no_down=no_down,
                 no_up=no_up,
             )
