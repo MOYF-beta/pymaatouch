@@ -148,6 +148,44 @@ class MNTDevice(object):
                 no_up=no_up,
             )
 
+    def pinch_zoom(self, points, scale, pressure=100, duration=500, steps=10):
+        """Two-finger pinch/zoom around the midpoint of points."""
+        if len(points) != 2:
+            raise ValueError("pinch_zoom expects exactly 2 points")
+        if scale <= 0:
+            raise ValueError("scale must be positive")
+
+        steps = max(1, int(steps))
+        wait_per_step = int(duration / steps) if duration else None
+
+        p1 = list(map(int, points[0]))
+        p2 = list(map(int, points[1]))
+        cx = (p1[0] + p2[0]) / 2
+        cy = (p1[1] + p2[1]) / 2
+
+        def scale_point(px, py, factor):
+            return int(cx + (px - cx) * factor), int(cy + (py - cy) * factor)
+
+        builder = CommandBuilder()
+        builder.down(0, p1[0], p1[1], pressure)
+        builder.down(1, p2[0], p2[1], pressure)
+        builder.commit()
+
+        for i in range(1, steps + 1):
+            t = i / steps
+            factor = 1 + (scale - 1) * t
+            nx1, ny1 = scale_point(p1[0], p1[1], factor)
+            nx2, ny2 = scale_point(p2[0], p2[1], factor)
+            builder.move(0, nx1, ny1, pressure)
+            builder.move(1, nx2, ny2, pressure)
+            if wait_per_step:
+                builder.wait(wait_per_step)
+            builder.commit()
+
+        builder.up(0)
+        builder.up(1)
+        builder.publish(self.connection)
+
 
 @contextmanager
 def safe_device(device_id, local_apk_path=None):
