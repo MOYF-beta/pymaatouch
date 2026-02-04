@@ -76,6 +76,11 @@ class MNTDevice(object):
             self.connection.disconnect()
         if self.server:
             self.server.stop()
+    
+    def up(self, contact_id=0):
+        _builder = CommandBuilder()
+        _builder.up(contact_id)
+        _builder.publish(self.connection)
 
     def tap(self, points, pressure=100, duration=None, no_up=None):
         points = [list(map(int, each_point)) for each_point in points]
